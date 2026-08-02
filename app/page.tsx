@@ -1,5 +1,7 @@
 // import Image from "next/image";
 
+import Hero from "@/components/home/hero";
+
 // export default function Home() {
 //   return (
 //     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -66,22 +68,33 @@
 
 
 
+// export default function HomePage() {
+//   return (
+//     <section className="mx-auto flex min-h-[80vh] max-w-7xl flex-col items-center justify-center px-5 text-center">
+//       <h1 className="mb-6 text-5xl font-bold">
+//         Find Your Perfect Rental Home
+//       </h1>
+
+//       <p className="mb-8 max-w-2xl text-gray-500">
+//         Browse thousands of verified rental properties.
+//         Connect with trusted landlords and manage your
+//         rentals easily with RentNest.
+//       </p>
+
+//       <button className="rounded-lg bg-emerald-600 px-8 py-3 text-white hover:bg-emerald-700">
+//         Explore Properties
+//       </button>
+//     </section>
+//   );
+// }
+
+
+// import Hero from "@/components/home/Hero";
+
 export default function HomePage() {
   return (
-    <section className="mx-auto flex min-h-[80vh] max-w-7xl flex-col items-center justify-center px-5 text-center">
-      <h1 className="mb-6 text-5xl font-bold">
-        Find Your Perfect Rental Home
-      </h1>
-
-      <p className="mb-8 max-w-2xl text-gray-500">
-        Browse thousands of verified rental properties.
-        Connect with trusted landlords and manage your
-        rentals easily with RentNest.
-      </p>
-
-      <button className="rounded-lg bg-emerald-600 px-8 py-3 text-white hover:bg-emerald-700">
-        Explore Properties
-      </button>
-    </section>
+    <>
+      <Hero />
+    </>
   );
 }
