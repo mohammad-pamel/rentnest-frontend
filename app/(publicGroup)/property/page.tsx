@@ -1,27 +1,48 @@
-import { getProperties } from "@/app/lib/api";
+import { getCategories, getProperties } from "@/app/lib/api";
+import Pagination from "@/components/properties/pagination";
 import PropertyGrid from "@/components/properties/propertyGrid";
 import SearchFilter from "@/components/properties/searchFilter";
-
-// import SearchFilter from "../components/properties/SearchFilter";
 // import PropertyGrid from "../components/properties/PropertyGrid";
+// import SearchFilter from "../components/properties/SearchFilter";
 
-export default async function PropertiesPage() {
+export default async function PropertiesPage({
+    searchParams,
+}: {
+    searchParams: Promise<{
+        location?: string;
+        minPrice?: string;
+        maxPrice?: string;
+        categoryId?: string;
+        searchTerm?: string;
+    }>;
+}) {
+    const params = await searchParams;
 
-  const result = await getProperties();
+    const propertyData = await getProperties(params);
 
-  return (
-    <main className="mx-auto max-w-7xl px-6 py-10">
+    const categoryData = await getCategories();
 
-      <h1 className="mb-8 text-4xl font-bold">
-        All Properties
-      </h1>
+    return (
+        <main>
 
-      <SearchFilter />
+            <h1 className="mb-8 text-4xl font-bold">
+                All Properties
+            </h1>
 
-      <PropertyGrid
-        properties={result.data}
-      />
 
-    </main>
-  );
+            <SearchFilter
+                categories={categoryData.data}
+            />
+
+            <PropertyGrid
+                properties={propertyData.data}
+            />
+
+            <Pagination
+                page={propertyData.meta.page}
+                totalPage={propertyData.meta.totalPage}
+            />
+
+        </main>
+    );
 }
