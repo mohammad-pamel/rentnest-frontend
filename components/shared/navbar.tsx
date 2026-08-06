@@ -195,6 +195,8 @@
 
 
 import Link from "next/link";
+import { Button } from "../ui/button";
+// import { Link } from 'next/link';
 
 export default function Navbar() {
     return (
@@ -207,8 +209,19 @@ export default function Navbar() {
                 <div className="hidden gap-8 md:flex">
                     <Link href="/">Home</Link>
                     <Link href="/properties">Properties</Link>
-                    <Link href="/login">Login</Link>
-                    <Link href="/register">Register</Link>
+                    {/* <Link href="/login">Login</Link> */}
+                    {/* <Link href="/register">Register</Link> */}
+                    <Link href="/login">
+                        <Button variant="outline">
+                            Login
+                        </Button>
+                    </Link>
+
+                    <Link href="/register">
+                        <Button>
+                            Register
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </nav>
