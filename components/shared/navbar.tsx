@@ -209,6 +209,9 @@ export default function Navbar() {
                 <div className="hidden gap-8 md:flex">
                     <Link href="/">Home</Link>
                     <Link href="/properties">Properties</Link>
+                    <Link href="/dashboard">
+                        Dashboard
+                    </Link>
                     {/* <Link href="/login">Login</Link> */}
                     {/* <Link href="/register">Register</Link> */}
                     <Link href="/login">
