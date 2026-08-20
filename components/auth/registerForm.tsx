@@ -1,165 +1,165 @@
-"use client";
+// "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-// import { registerUser } from "@/lib/api";
-import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Select } from "../ui/select";
-import { registerUser } from "@/app/lib/api";
+// import { useState } from "react";
+// import Link from "next/link";
+// // import { registerUser } from "@/lib/api";
+// import { useRouter } from "next/navigation";
+// import { Card } from "@/components/ui/card";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { Button } from "@/components/ui/button";
+// import { Select } from "../ui/select";
+// import { registerUser } from "@/app/lib/api";
 
-export default function LoginForm() {
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
+// export default function LoginForm() {
+//     const [loading, setLoading] = useState(false);
+//     const router = useRouter();
 
-    const [name, setName] = useState("");
+//     const [name, setName] = useState("");
 
-    const [email, setEmail] = useState("");
+//     const [email, setEmail] = useState("");
 
-    const [password, setPassword] = useState("");
+//     const [password, setPassword] = useState("");
 
-    const [phone, setPhone] = useState("");
+//     const [phone, setPhone] = useState("");
 
-    const [role, setRole] = useState("TENANT");
+//     const [role, setRole] = useState("TENANT");
 
-    const handleSubmit = async (
-        e: React.FormEvent
-    ) => {
+//     const handleSubmit = async (
+//         e: React.FormEvent
+//     ) => {
 
-        e.preventDefault();
+//         e.preventDefault();
 
-        setLoading(true);
+//         setLoading(true);
 
-        const result = await registerUser({
+//         const result = await registerUser({
 
-            name,
+//             name,
 
-            email,
+//             email,
 
-            password,
+//             password,
 
-            phone,
+//             phone,
 
-            role,
+//             role,
 
-        });
+//         });
 
-        setLoading(false);
+//         setLoading(false);
 
-        if (result.success) {
+//         if (result.success) {
 
-            alert("Registration Successful");
+//             alert("Registration Successful");
 
-            router.push("/login");
+//             router.push("/login");
 
-        } else {
+//         } else {
 
-            alert(result.message);
+//             alert(result.message);
 
-        }
+//         }
 
-    }
+//     }
 
-    return (
-        <Card className="p-8">
+//     return (
+//         <Card className="p-8">
 
-            <h1 className="mb-6 text-center text-3xl font-bold">
-                Login
-            </h1>
+//             <h1 className="mb-6 text-center text-3xl font-bold">
+//                 Login
+//             </h1>
 
-            <form
-                onSubmit={handleSubmit}
-                className="space-y-5"
-            >
+//             <form
+//                 onSubmit={handleSubmit}
+//                 className="space-y-5"
+//             >
 
-                <div>
+//                 <div>
 
-                    <Label>Name</Label>
+//                     <Label>Name</Label>
 
-                    <Input
-                        type="name"
-                        placeholder="Enter Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
+//                     <Input
+//                         type="name"
+//                         placeholder="Enter Name"
+//                         value={name}
+//                         onChange={(e) => setName(e.target.value)}
+//                     />
 
-                </div>
-                <div>
+//                 </div>
+//                 <div>
 
-                    <Label>Email</Label>
+//                     <Label>Email</Label>
 
-                    <Input
-                        type="email"
-                        placeholder="Enter Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+//                     <Input
+//                         type="email"
+//                         placeholder="Enter Email"
+//                         value={email}
+//                         onChange={(e) => setEmail(e.target.value)}
+//                     />
 
-                </div>
-                <div>
+//                 </div>
+//                 <div>
 
-                    <Label>Phone</Label>
+//                     <Label>Phone</Label>
 
-                    <Input
-                        type="phone"
-                        placeholder="Enter Phone"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                    />
+//                     <Input
+//                         type="phone"
+//                         placeholder="Enter Phone"
+//                         value={phone}
+//                         onChange={(e) => setPhone(e.target.value)}
+//                     />
 
-                </div>
-                <div>
+//                 </div>
+//                 <div>
 
-                    <Label>Role</Label>
+//                     <Label>Role</Label>
 
-                    <Select
-                    value={role}
-                    onValueChange={setRole}
-                ></Select>
+//                     <Select
+//                     value={role}
+//                     onValueChange={setRole}
+//                 ></Select>
 
-                </div>
+//                 </div>
 
-                <div>
+//                 <div>
 
-                    <Label>Password</Label>
+//                     <Label>Password</Label>
 
-                    <Input
-                        type="password"
-                        placeholder="Enter Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+//                     <Input
+//                         type="password"
+//                         placeholder="Enter Password"
+//                         value={password}
+//                         onChange={(e) => setPassword(e.target.value)}
+//                     />
 
-                </div>
+//                 </div>
 
-                <Button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full"
-                >
+//                 <Button
+//                     type="submit"
+//                     disabled={loading}
+//                     className="w-full"
+//                 >
 
-                    {loading ? "Registering..." : "Register"}
+//                     {loading ? "Registering..." : "Register"}
 
-                </Button>
+//                 </Button>
 
-            </form>
+//             </form>
 
-            <p className="mt-6 text-center">
+//             <p className="mt-6 text-center">
 
-                Dont have an account?
+//                 Dont have an account?
 
-                <Link
-                    href="/register"
-                    className="ml-2 text-blue-600"
-                >
-                    Register
-                </Link>
+//                 <Link
+//                     href="/register"
+//                     className="ml-2 text-blue-600"
+//                 >
+//                     Register
+//                 </Link>
 
-            </p>
+//             </p>
 
-        </Card>
-    );
-}
+//         </Card>
+//     );
+// }

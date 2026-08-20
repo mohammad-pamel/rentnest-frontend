@@ -1,9 +1,8 @@
-import { getCategories, getProperties } from "@/app/lib/api";
+import { getCategories, getProperties, PropertyListResponse } from "@/app/lib/api";
 import Pagination from "@/components/properties/pagination";
 import PropertyGrid from "@/components/properties/propertyGrid";
 import SearchFilter from "@/components/properties/searchFilter";
-// import PropertyGrid from "../components/properties/PropertyGrid";
-// import SearchFilter from "../components/properties/SearchFilter";
+
 
 export default async function PropertiesPage({
     searchParams,
@@ -18,7 +17,7 @@ export default async function PropertiesPage({
 }) {
     const params = await searchParams;
 
-    const propertyData = await getProperties(params);
+    const propertyData : PropertyListResponse = await getProperties(params);
 
     const categoryData = await getCategories();
 
@@ -39,8 +38,8 @@ export default async function PropertiesPage({
             />
 
             <Pagination
-                page={propertyData.meta.page}
-                totalPage={propertyData.meta.totalPage}
+                page={propertyData.meta?.page as number}
+                totalPage={propertyData.meta?.totalPage as number}
             />
 
         </main>

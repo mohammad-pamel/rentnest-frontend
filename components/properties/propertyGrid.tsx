@@ -1,9 +1,10 @@
+import { Property } from "@/app/lib/api";
 import PropertyCard from "../home/propertyCard";
 
 export default function PropertyGrid({
   properties,
 }: {
-  properties: any[];
+  properties: Property[];
 }) {
   return (
     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

@@ -3,6 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getProperty } from "@/app/lib/api";
+import RequestRentalForm from "../../_components/RentalRequestForm";
+import ReviewList from "@/app/(dashboardGroup)/_components/reviewList";
+import ReviewForm from "@/app/(dashboardGroup)/_components/reviewForm";
 
 export default async function PropertyDetailsPage({
   params,
@@ -21,10 +24,22 @@ export default async function PropertyDetailsPage({
 
   console.log(property)
 
+  if (!property) {
+    return (
+      <div className="p-6 text-center">
+        <h1 className="text-2xl font-bold">
+          Property Not Found
+        </h1>
+
+        <p className="mt-2 text-gray-500">
+          This property does not exist or is no longer available.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-8 lg:grid-cols-2">
-
-      {/* Left */}
 
       <div>
 
@@ -38,7 +53,6 @@ export default async function PropertyDetailsPage({
 
       </div>
 
-      {/* Right */}
 
       <div>
 
@@ -60,7 +74,7 @@ export default async function PropertyDetailsPage({
 
         </h2>
 
-        <Separator className="my-6"/>
+        <Separator className="my-6" />
 
         <div className="grid grid-cols-2 gap-4">
 
@@ -90,7 +104,7 @@ export default async function PropertyDetailsPage({
 
         </div>
 
-        <Separator className="my-6"/>
+        <Separator className="my-6" />
 
         <h3 className="font-bold">
 
@@ -100,7 +114,7 @@ export default async function PropertyDetailsPage({
         <div className="mt-3 flex flex-wrap gap-2">
 
           {property.amenities.map(
-            (item:string)=>(
+            (item: string) => (
               <Badge
                 key={item}
               >
@@ -111,7 +125,7 @@ export default async function PropertyDetailsPage({
 
         </div>
 
-        <Separator className="my-6"/>
+        <Separator className="my-6" />
 
         <h3 className="font-bold">
 
@@ -125,13 +139,15 @@ export default async function PropertyDetailsPage({
 
         </p>
 
-        <Button
-          className="mt-8 w-full"
-        >
+        <RequestRentalForm propertyId={property.id} />
 
-          Request To Rent
+        <Separator className="my-6" />
 
-        </Button>
+        <ReviewList propertyId={property.id} />
+
+        <Separator className="my-6" />
+
+        <ReviewForm propertyId={property.id} />
 
       </div>
 

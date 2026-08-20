@@ -20,7 +20,7 @@ export default function Pagination({
 
     query.set("page", String(newPage));
 
-    router.push(`/properties?${query.toString()}`);
+    router.push(`/property?${query.toString()}`);
   };
 
   return (

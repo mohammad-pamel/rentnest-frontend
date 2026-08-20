@@ -1,52 +1,59 @@
-// "use client"
+"use client"
 
-// import { Button } from "@/components/ui/button"
-// import { Card } from "@/components/ui/card"
-// import { Input } from "@/components/ui/input"
-// // import { useRouter } from "next/navigation"
-// import { useSearchParams } from "next/navigation"
-// import { useActionState, useEffect } from "react"
-// import { toast } from "sonner"
-// import { loginAction } from "../_actions/authActions"
-
-
-// const LoginForm = () => {
-//     const searchParams = useSearchParams();
-//     const redirectTo = searchParams.get("redirectTo") ?? ""
-//     const [state, action, pending] = useActionState(loginAction.bind(null, redirectTo), false)
-    
-//     // const router = useRouter()
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
+import { loginAction } from "../_actions/authActions"
+import { useActionState, useEffect } from "react"
+import Link from "next/link"
 
 
-//     useEffect(()=> {
-//         if(!state) return;
 
-//         // if(state.success){
-//         //     toast.success(state.message || "Login Successful");
-//         //     // router.push("/dashboard")
-//         // }
+const LoginForm = () => {
 
-//         if(!state.success){
-//             toast.error(state.message || "Login failed");
-//         }
-//     }, [state]);
+    const [state, action, pending] = useActionState(loginAction, false)
+    // // const router = useRouter()
 
 
-//   return (
-//     <form action={action} className="space-y-4">
-//         <Card className="p-5 space-y-4">
-//             <Input name="email" type="email" placeholder="Enter Your Email" required />
-//             <Input name="password" type="password" placeholder="Enter Your Password" required />
-//             <Button type="submit">
-//                 {
-//                     pending ? "Submitting..." : "Login"
-//                 }
-//             </Button>
-//         </Card>
-//     </form>
-//   )
-// }
+    useEffect(() => {
+        if (!state) return;
 
-// export default LoginForm
+        if (state.success) {
+            toast.success(state.message || "Login Successful");
+            // router.push("/dashboard")
+        }
+
+        if (!state.success) {
+            toast.error(state.message || "Login failed");
+        }
+    }, [state]);
 
 
+    return (
+        <form
+            action={action}
+            className="space-y-4">
+            <Card className="p-5 space-y-4">
+                <Input name="email" type="email" placeholder="Enter Your Email" required />
+                <Input name="password" type="password" placeholder="Enter Your Password" required />
+                <p className="text-center text-sm text-gray-500">
+                     No account yet?{" "}
+                    <Link
+                        href="/register"
+                        className="font-medium text-blue-600 hover:underline"
+                    >
+                        Register
+                    </Link>
+                </p>
+                <Button type="submit">
+                    {
+                        pending ? "Submitting..." : "Login"
+                    }
+                </Button>
+            </Card>
+        </form>
+    )
+}
+
+export default LoginForm

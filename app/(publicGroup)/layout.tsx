@@ -1,17 +1,22 @@
-import { ReactNode } from "react";
+import Footer from "@/components/shared/footer";
+import { Navbar } from "@/components/shared/navbar";
+import { getMe } from "@/service/getMe";
 
-interface PropertiesLayoutProps {
-  children: ReactNode;
-}
-
-export default function PropertiesLayout({
-  children,
-}: PropertiesLayoutProps) {
+const PublicGroupLayout = async (
+    {
+        children
+    } : {
+        children: React.ReactNode
+    }
+) => {
+    const user = await getMe();
   return (
-    <section className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        {children}
-      </div>
-    </section>
-  );
+    <div className="space-y-12">
+      <Navbar user={user}/>
+      {children}
+      <Footer></Footer>
+    </div>
+  )
 }
+
+export default PublicGroupLayout

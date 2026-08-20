@@ -1,12 +1,12 @@
-import { getToken } from "./cookies";
+// import { getToken } from "./cookies";
 
-export const isLoggedIn = () => {
-  return !!getToken();
-};
+// export const isLoggedIn = () => {
+//   return !!getToken();
+// };
 
-import { removeToken } from "./cookies";
+// import { removeToken } from "./cookies";
 
-export function logout() {
-  removeToken();
-  window.location.href = "/login";
-}
+// export function logout() {
+//   removeToken();
+//   window.location.href = "/login";
+// }
