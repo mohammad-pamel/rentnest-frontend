@@ -9,7 +9,7 @@ RentNest is a modern, responsive rental property marketplace frontend built with
 * **Frontend Repository:** [https://github.com/mohammad-pamel/rentnest-frontend](https://github.com/mohammad-pamel/rentnest-frontend)
 * **Live Frontend:** [https://rentnest-frontend-lilac.vercel.app/](https://rentnest-frontend-lilac.vercel.app/)
 * **Backend API:** [https://rentnest-backend-xi.vercel.app/](https://rentnest-backend-xi.vercel.app/)
-**Backend Repository:** [https://github.com/mohammad-pamel/rentnest-backend](https://github.com/mohammad-pamel/rentnest-backend)
+* **Backend Repository:** [https://github.com/mohammad-pamel/rentnest-backend](https://github.com/mohammad-pamel/rentnest-backend)
 
 ## 📌 Project Overview
 
