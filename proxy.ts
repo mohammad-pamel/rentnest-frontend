@@ -8,7 +8,7 @@ import { getNewAccessToken } from "./service/refreshToken";
 
 
 const AUTH_ROUTES = ["/login", "/register"];
-// const PUBLIC_ROUTES = ["/", "/news", "/login", "/register"]
+
 const PUBLIC_ROUTES = ["/", "/properties"]
 
 // This function can be marked `async` if using `await` inside
