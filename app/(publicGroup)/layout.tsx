@@ -1,22 +1,24 @@
+
 import Footer from "@/components/shared/footer";
 import { Navbar } from "@/components/shared/navbar";
 import { getMe } from "@/service/getMe";
 
-const PublicGroupLayout = async (
-    {
-        children
-    } : {
-        children: React.ReactNode
-    }
-) => {
-    const user = await getMe();
-  return (
-    <div className="space-y-12">
-      <Navbar user={user}/>
-      {children}
-      <Footer></Footer>
-    </div>
-  )
-}
+export default async function PublicGroupLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await getMe();
 
-export default PublicGroupLayout
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Navbar user={user} />
+
+      <div className="flex-1">
+        {children}
+      </div>
+
+      <Footer />
+    </div>
+  );
+}

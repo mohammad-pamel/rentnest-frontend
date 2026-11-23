@@ -9,7 +9,7 @@ export const registerUserAction = async (data: {
 }) => {
   try {
     const res = await fetch(
-      `${process.env.BACKEND_API_URL}/api/users/register`,
+      `${process.env.BACKEND_API_URL}/api/auth/register`,
       {
         method: "POST",
         headers: {

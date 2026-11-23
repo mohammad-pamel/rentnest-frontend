@@ -1,12 +1,16 @@
+
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
-import { deletePropertyAction } from "../_actions/propertyActions";
 import type { Property } from "@/app/lib/api";
+
+import { deletePropertyAction } from "../_actions/propertyActions";
 
 type PropertyManageCardProps = {
   property: Property;
@@ -15,6 +19,8 @@ type PropertyManageCardProps = {
 export default function PropertyManageCard({
   property,
 }: PropertyManageCardProps) {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
@@ -29,51 +35,55 @@ export default function PropertyManageCard({
 
       const result = await deletePropertyAction(property.id);
 
-      if (result.success) {
-        toast.success(
-          result.message || "Property deleted successfully"
-        );
-
-        window.location.reload();
-      } else {
+      if (!result.success) {
         toast.error(
           result.message || "Failed to delete property"
         );
+        return;
       }
+
+      toast.success(
+        result.message || "Property deleted successfully"
+      );
+
+      router.refresh();
     } catch (error) {
+      console.error("Delete property error:", error);
       toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
+  const imageUrl =
+    property.images?.[0] || "/placeholder.jpg";
+
   return (
-    <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
-      
+    <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
       <div className="relative h-56 w-full">
         <Image
-          src={property.images?.[0] || "/placeholder.jpg"}
+          src={imageUrl}
           alt={property.title}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover"
         />
       </div>
 
-     
       <div className="space-y-3 p-5">
         <h2 className="text-xl font-bold">
           {property.title}
         </h2>
 
-        <p className="text-gray-500">
+        <p className="text-sm text-muted-foreground">
           {property.location}
         </p>
 
-        <p className="text-2xl font-bold text-green-700">
-          ৳ {property.price}
+        <p className="text-2xl font-bold text-primary">
+          ৳ {Number(property.price).toLocaleString("en-BD")}
         </p>
 
-        <div className="grid grid-cols-2 gap-2 text-sm">
+        <div className="grid grid-cols-2 gap-3 text-sm">
           <p>
             Bedrooms:{" "}
             <span className="font-semibold">
@@ -97,13 +107,18 @@ export default function PropertyManageCard({
 
           <p>
             Available:{" "}
-            <span className="font-semibold">
+            <span
+              className={`font-semibold ${
+                property.isAvailable
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
               {property.isAvailable ? "Yes" : "No"}
             </span>
           </p>
         </div>
 
-    
         <div className="flex gap-3 pt-3">
           <Link
             href={`/landloard-dashboard/Properties/${property.id}/edit`}
@@ -112,6 +127,7 @@ export default function PropertyManageCard({
             <Button
               variant="outline"
               className="w-full"
+              disabled={loading}
             >
               Edit
             </Button>

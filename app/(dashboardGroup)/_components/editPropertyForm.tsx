@@ -1,11 +1,14 @@
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+
 import { updatePropertyAction } from "../_actions/propertyActions";
 
 interface Category {
@@ -33,36 +36,23 @@ interface EditPropertyFormProps {
   categories: Category[];
 }
 
-export default function EditPropertyForm({property, categories}: EditPropertyFormProps) {
+export default function EditPropertyForm({
+  property,
+  categories,
+}: EditPropertyFormProps) {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
   const [title, setTitle] = useState(property.title);
-  const [description, setDescription] = useState(
-    property.description
-  );
-  const [location, setLocation] = useState(
-    property.location
-  );
-  const [address, setAddress] = useState(
-    property.address
-  );
-  const [price, setPrice] = useState(
-    String(property.price)
-  );
-  const [bedrooms, setBedrooms] = useState(
-    String(property.bedrooms)
-  );
-  const [bathrooms, setBathrooms] = useState(
-    String(property.bathrooms)
-  );
-  const [area, setArea] = useState(
-    String(property.area)
-  );
-  const [categoryId, setCategoryId] = useState(
-    property.categoryId
-  );
+  const [description, setDescription] = useState(property.description);
+  const [location, setLocation] = useState(property.location);
+  const [address, setAddress] = useState(property.address);
+  const [price, setPrice] = useState(String(property.price));
+  const [bedrooms, setBedrooms] = useState(String(property.bedrooms));
+  const [bathrooms, setBathrooms] = useState(String(property.bathrooms));
+  const [area, setArea] = useState(String(property.area));
+  const [categoryId, setCategoryId] = useState(property.categoryId);
 
   const [amenities, setAmenities] = useState(
     property.amenities?.join(", ") || ""
@@ -72,19 +62,67 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
     property.images?.join(", ") || ""
   );
 
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!title.trim()) {
+      toast.error("Property title is required");
+      return;
+    }
+
+    if (!description.trim()) {
+      toast.error("Description is required");
+      return;
+    }
+
+    if (!location.trim() || !address.trim()) {
+      toast.error("Location and address are required");
+      return;
+    }
+
+    if (!categoryId) {
+      toast.error("Please select a category");
+      return;
+    }
+
+    if (!price || !Number.isFinite(Number(price)) || Number(price) <= 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
+    if (
+      bedrooms === "" ||
+      bathrooms === "" ||
+      area === "" ||
+      !Number.isFinite(Number(bedrooms)) ||
+      !Number.isFinite(Number(bathrooms)) ||
+      !Number.isFinite(Number(area)) ||
+      Number(bedrooms) < 0 ||
+      Number(bathrooms) < 0 ||
+      Number(area) <= 0
+    ) {
+      toast.error("Please enter valid property details");
+      return;
+    }
+
+    const imageList = images
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (imageList.length === 0) {
+      toast.error("At least one property image URL is required");
+      return;
+    }
 
     try {
       setLoading(true);
 
       const data = {
-        title,
-        description,
-        location,
-        address,
+        title: title.trim(),
+        description: description.trim(),
+        location: location.trim(),
+        address: address.trim(),
         price: Number(price),
         bedrooms: Number(bedrooms),
         bathrooms: Number(bathrooms),
@@ -95,41 +133,27 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
           .map((item) => item.trim())
           .filter(Boolean),
 
-        images: images
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
+        images: imageList,
 
         categoryId,
       };
 
-      const result = await updatePropertyAction(
-        property.id,
-        data
-      );
+      const result = await updatePropertyAction(property.id, data);
 
       if (!result.success) {
-        toast.error(
-          result.message ||
-            "Failed to update property"
-        );
+        toast.error(result.message || "Failed to update property");
         return;
       }
 
       toast.success(
-        result.message ||
-          "Property updated successfully"
+        result.message || "Property updated successfully"
       );
 
-      router.push(
-        "/landloard-dashboard/Properties"
-      );
-
+      router.push("/landloard-dashboard/Properties");
       router.refresh();
     } catch (error) {
-      toast.error(
-        "Something went wrong"
-      );
+      console.error("Update property error:", error);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -138,7 +162,7 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6 rounded-xl border bg-white p-6 shadow-sm"
+      className="space-y-6 rounded-xl border bg-card p-6 shadow-sm"
     >
       <div>
         <label className="mb-2 block font-medium">
@@ -147,9 +171,8 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
         <Input
           value={title}
-          onChange={(e) =>
-            setTitle(e.target.value)
-          }
+          onChange={(e) => setTitle(e.target.value)}
+          disabled={loading}
           required
         />
       </div>
@@ -161,9 +184,8 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
         <Textarea
           value={description}
-          onChange={(e) =>
-            setDescription(e.target.value)
-          }
+          onChange={(e) => setDescription(e.target.value)}
+          disabled={loading}
           required
         />
       </div>
@@ -176,9 +198,8 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
           <Input
             value={location}
-            onChange={(e) =>
-              setLocation(e.target.value)
-            }
+            onChange={(e) => setLocation(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
@@ -190,9 +211,8 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
           <Input
             value={address}
-            onChange={(e) =>
-              setAddress(e.target.value)
-            }
+            onChange={(e) => setAddress(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
@@ -206,10 +226,11 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
           <Input
             type="number"
+            min="0.01"
+            step="any"
             value={price}
-            onChange={(e) =>
-              setPrice(e.target.value)
-            }
+            onChange={(e) => setPrice(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
@@ -221,10 +242,11 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
           <Input
             type="number"
+            min="0.01"
+            step="any"
             value={area}
-            onChange={(e) =>
-              setArea(e.target.value)
-            }
+            onChange={(e) => setArea(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
@@ -238,10 +260,11 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
           <Input
             type="number"
+            min="0"
+            step="1"
             value={bedrooms}
-            onChange={(e) =>
-              setBedrooms(e.target.value)
-            }
+            onChange={(e) => setBedrooms(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
@@ -253,10 +276,11 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
           <Input
             type="number"
+            min="0"
+            step="1"
             value={bathrooms}
-            onChange={(e) =>
-              setBathrooms(e.target.value)
-            }
+            onChange={(e) => setBathrooms(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
@@ -269,21 +293,15 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
         <select
           value={categoryId}
-          onChange={(e) =>
-            setCategoryId(e.target.value)
-          }
-          className="w-full rounded-md border px-3 py-2"
+          onChange={(e) => setCategoryId(e.target.value)}
+          disabled={loading}
+          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           required
         >
-          <option value="">
-            Select Category
-          </option>
+          <option value="">Select Category</option>
 
           {categories.map((category) => (
-            <option
-              key={category.id}
-              value={category.id}
-            >
+            <option key={category.id} value={category.id}>
               {category.name}
             </option>
           ))}
@@ -297,10 +315,9 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
         <Input
           value={amenities}
-          onChange={(e) =>
-            setAmenities(e.target.value)
-          }
+          onChange={(e) => setAmenities(e.target.value)}
           placeholder="WiFi, Parking, Balcony"
+          disabled={loading}
         />
       </div>
 
@@ -311,22 +328,15 @@ export default function EditPropertyForm({property, categories}: EditPropertyFor
 
         <Textarea
           value={images}
-          onChange={(e) =>
-            setImages(e.target.value)
-          }
+          onChange={(e) => setImages(e.target.value)}
           placeholder="https://image1.jpg, https://image2.jpg"
+          disabled={loading}
           required
         />
       </div>
 
-      <Button
-        type="submit"
-        disabled={loading}
-        className="w-full"
-      >
-        {loading
-          ? "Updating..."
-          : "Update Property"}
+      <Button type="submit" disabled={loading} className="w-full">
+        {loading ? "Updating..." : "Update Property"}
       </Button>
     </form>
   );

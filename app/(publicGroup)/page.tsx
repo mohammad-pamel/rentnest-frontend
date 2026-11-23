@@ -23,7 +23,7 @@ export default async function PropertiesPage({
 
 
   return (
-    <main>
+    <main className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 
       <h1 className="mb-8 text-4xl font-bold">
         All Properties
@@ -33,7 +33,7 @@ export default async function PropertiesPage({
         properties={propertyData.data}
       />
 
-      <CardFooter>
+      <CardFooter className="mt-10 flex flex-wrap items-center justify-center">
                 <Link href="/property">
                     <Button className="mt-12 ">
                         View All Property

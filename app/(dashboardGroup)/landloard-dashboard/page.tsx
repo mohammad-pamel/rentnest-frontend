@@ -1,93 +1,77 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import {
+  Building2,
+  PlusCircle,
+  ClipboardList,
+  ArrowRight,
+} from "lucide-react";
+
+const dashboardCards = [
+  {
+    title: "My Properties",
+    description: "View and manage all your rental properties.",
+    href: "/landloard-dashboard/my-properties",
+    buttonText: "My Properties",
+    icon: Building2,
+  },
+  {
+    title: "Add Property",
+    description: "Create a new property listing.",
+    href: "/landloard-dashboard/Properties/create",
+    buttonText: "Add New Property",
+    icon: PlusCircle,
+  },
+  {
+    title: "Rental Requests",
+    description: "Accept or reject rental requests from tenants.",
+    href: "/landloard-dashboard/my-rental-requests",
+    buttonText: "View Requests",
+    icon: ClipboardList,
+  },
+];
 
 export default function LandlordDashboard() {
   return (
     <div className="space-y-8">
-
-     
       <div>
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-3xl font-bold tracking-tight">
           Landlord Dashboard
         </h1>
 
-        <p className="mt-2 text-gray-500">
+        <p className="mt-2 text-muted-foreground">
           Manage your properties and rental requests.
         </p>
       </div>
 
-     
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {dashboardCards.map((card) => {
+          const Icon = card.icon;
 
-     
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          return (
+            <div
+              key={card.title}
+              className="flex flex-col rounded-xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <div className="mb-5 flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Icon size={25} />
+              </div>
 
-          <h2 className="text-xl font-bold">
-            My Properties
-          </h2>
+              <h2 className="text-xl font-bold">{card.title}</h2>
 
-          <p className="mt-2 text-gray-500">
-            View and manage all your rental properties.
-          </p>
+              <p className="mt-2 flex-1 text-sm text-muted-foreground">
+                {card.description}
+              </p>
 
-          <Link
-            href="/landloard-dashboard/my-properties"
-            className="block rounded-lg px-3 py-2 hover:bg-slate-100"
-          >
-            <Button className="w-full">
-              My Properties
-            </Button>
-
-          </Link>
-
-        </div>
-
-        
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-
-          <h2 className="text-xl font-bold">
-            Add Property
-          </h2>
-
-          <p className="mt-2 text-gray-500">
-            Create a new property listing.
-          </p>
-
-          <Link
-            href="/landloard-dashboard/Properties/create"
-            className="mt-5 block"
-          >
-            <Button className="w-full">
-              Add New Property
-            </Button>
-          </Link>
-
-        </div>
-
-       
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-
-          <h2 className="text-xl font-bold">
-            Rental Requests
-          </h2>
-
-          <p className="mt-2 text-gray-500">
-            Accept or reject rental requests from tenants.
-          </p>
-
-          <Link
-            href="/landloard-dashboard/my-rental-requests"
-            className="mt-5 block"
-          >
-            <Button className="w-full">
-              View Requests
-            </Button>
-          </Link>
-
-        </div>
-
+              <Link href={card.href} className="mt-6">
+                <span className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                  {card.buttonText}
+                  <ArrowRight size={16} />
+                </span>
+              </Link>
+            </div>
+          );
+        })}
       </div>
-
     </div>
   );
 }

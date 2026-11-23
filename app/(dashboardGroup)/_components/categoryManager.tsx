@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
@@ -24,14 +26,13 @@ interface CategoryManagerProps {
 export default function CategoryManager({
   categories,
 }: CategoryManagerProps) {
+  const router = useRouter();
+
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] =
-    useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!name.trim()) {
@@ -43,80 +44,65 @@ export default function CategoryManager({
       setLoading(true);
 
       const result = editingId
-        ? await updateCategoryAction(
-            editingId,
-            name.trim()
-          )
-        : await createCategoryAction(
-            name.trim()
-          );
+        ? await updateCategoryAction(editingId, name.trim())
+        : await createCategoryAction(name.trim());
 
       if (!result.success) {
-        toast.error(
-          result.message ||
-            "Something went wrong"
-        );
+        toast.error(result.message || "Something went wrong");
         return;
       }
 
       toast.success(
-        result.message ||
-          "Category saved successfully"
+        result.message || "Category saved successfully"
       );
 
       setName("");
       setEditingId(null);
 
-      window.location.reload();
+      router.refresh();
     } catch (error) {
-      toast.error(
-        "Something went wrong"
-      );
+      console.error("Category save error:", error);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = (
-    category: Category
-  ) => {
+  const handleEdit = (category: Category) => {
     setEditingId(category.id);
     setName(category.name);
   };
 
-  const handleDelete = async (
-    id: string
-  ) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this category?"
-    );
+  const handleDelete = async (id: string) => {
+    // const confirmed = toast(
+    //   "Are you sure you want to delete this category?"
+    // );
 
-    if (!confirmed) return;
+    // if (!confirmed) return;
 
     try {
       setLoading(true);
 
-      const result =
-        await deleteCategoryAction(id);
+      const result = await deleteCategoryAction(id);
 
       if (!result.success) {
-        toast.error(
-          result.message ||
-            "Failed to delete category"
-        );
+        toast.error(result.message || "Failed to delete category");
         return;
       }
 
       toast.success(
-        result.message ||
-          "Category deleted successfully"
+        result.message || "Category deleted successfully"
       );
 
-      window.location.reload();
+      if (editingId === id) {
+        setEditingId(null);
+        setName("");
+      }
+
+      router.refresh();
     } catch (error) {
-      toast.error(
-        "Something went wrong"
-      );
+      console.error("Category delete error:", error);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -131,28 +117,22 @@ export default function CategoryManager({
     <div className="space-y-6">
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl border bg-white p-6 shadow-sm"
+        className="rounded-xl border bg-card p-6 shadow-sm"
       >
         <h2 className="text-xl font-bold">
-          {editingId
-            ? "Edit Category"
-            : "Add Category"}
+          {editingId ? "Edit Category" : "Add Category"}
         </h2>
 
-        <div className="mt-4 flex gap-3">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <Input
             value={name}
-            onChange={(e) =>
-              setName(e.target.value)
-            }
+            onChange={(e) => setName(e.target.value)}
             placeholder="Enter category name"
             disabled={loading}
+            required
           />
 
-          <Button
-            type="submit"
-            disabled={loading}
-          >
+          <Button type="submit" disabled={loading}>
             {loading
               ? "Processing..."
               : editingId
@@ -173,15 +153,15 @@ export default function CategoryManager({
         </div>
       </form>
 
-      <div className="rounded-xl border bg-white shadow-sm">
+      <div className="rounded-xl border bg-card shadow-sm">
         <div className="border-b p-5">
           <h2 className="text-xl font-bold">
-            All Categories
+            All Categories ({categories.length})
           </h2>
         </div>
 
         {categories.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-muted-foreground">
             No categories found.
           </div>
         ) : (
@@ -189,18 +169,14 @@ export default function CategoryManager({
             {categories.map((category) => (
               <div
                 key={category.id}
-                className="flex items-center justify-between p-5"
+                className="flex flex-col justify-between gap-3 p-5 sm:flex-row sm:items-center"
               >
-                <p className="font-medium">
-                  {category.name}
-                </p>
+                <p className="font-medium">{category.name}</p>
 
                 <div className="flex gap-3">
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      handleEdit(category)
-                    }
+                    onClick={() => handleEdit(category)}
                     disabled={loading}
                   >
                     Edit
@@ -208,9 +184,7 @@ export default function CategoryManager({
 
                   <Button
                     variant="destructive"
-                    onClick={() =>
-                      handleDelete(category.id)
-                    }
+                    onClick={() => handleDelete(category.id)}
                     disabled={loading}
                   >
                     Delete

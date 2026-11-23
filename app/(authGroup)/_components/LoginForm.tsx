@@ -1,59 +1,114 @@
-"use client"
 
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { toast } from "sonner"
-import { loginAction } from "../_actions/authActions"
-import { useActionState, useEffect } from "react"
-import Link from "next/link"
+"use client";
 
+import { useActionState, useEffect } from "react";
+import Link from "next/link";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
-const LoginForm = () => {
+import { loginAction } from "../_actions/authActions";
 
-    const [state, action, pending] = useActionState(loginAction, false)
-    // // const router = useRouter()
+type LoginState = {
+  success: boolean;
+  message: string;
+};
 
+const initialState: LoginState = {
+  success: false,
+  message: "",
+};
 
-    useEffect(() => {
-        if (!state) return;
+export default function LoginForm() {
+  const [state, action, pending] = useActionState(
+    loginAction,
+    initialState,
+  );
 
-        if (state.success) {
-            toast.success(state.message || "Login Successful");
-            // router.push("/dashboard")
-        }
+  useEffect(() => {
+    if (!state.message) return;
 
-        if (!state.success) {
-            toast.error(state.message || "Login failed");
-        }
-    }, [state]);
+    if (state.success) {
+      toast.success(state.message);
+    } else {
+      toast.error(state.message);
+    }
+  }, [state.success, state.message]);
 
+  return (
+    <form action={action}>
+      <Card className="space-y-5 p-6">
+        <div>
+          <h2 className="text-2xl font-bold">
+            Welcome Back
+          </h2>
 
-    return (
-        <form
-            action={action}
-            className="space-y-4">
-            <Card className="p-5 space-y-4">
-                <Input name="email" type="email" placeholder="Enter Your Email" required />
-                <Input name="password" type="password" placeholder="Enter Your Password" required />
-                <p className="text-center text-sm text-gray-500">
-                     No account yet?{" "}
-                    <Link
-                        href="/register"
-                        className="font-medium text-blue-600 hover:underline"
-                    >
-                        Register
-                    </Link>
-                </p>
-                <Button type="submit">
-                    {
-                        pending ? "Submitting..." : "Login"
-                    }
-                </Button>
-            </Card>
-        </form>
-    )
+          <p className="mt-1 text-sm text-muted-foreground">
+            Login to continue to your RentNest account.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="email" className="text-sm font-medium">
+            Email Address
+          </label>
+
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter your email"
+            autoComplete="email"
+            required
+            disabled={pending}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="password" className="text-sm font-medium">
+            Password
+          </label>
+
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            required
+            disabled={pending}
+          />
+        </div>
+
+        <div className="text-right">
+          <Link
+            href="/forgot-password"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={pending}
+          className="w-full"
+        >
+          {pending ? "Logging in..." : "Login"}
+        </Button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          No account yet?{" "}
+          <Link
+            href="/register"
+            className="font-medium text-primary hover:underline"
+          >
+            Register
+          </Link>
+        </p>
+      </Card>
+    </form>
+  );
 }
-
-export default LoginForm

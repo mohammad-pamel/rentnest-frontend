@@ -1,4 +1,13 @@
+
 import Link from "next/link";
+import {
+  ClipboardList,
+  CheckCircle,
+  Home,
+  CreditCard,
+  ArrowRight,
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 import { getMyRentalRequestsAction } from "../_actions/rentalActions";
@@ -25,7 +34,7 @@ interface RentalRequest {
   moveInDate: string;
   months: number;
   status: RentalStatus;
-  property?: RentalProperty;
+  property?: RentalProperty | null;
 }
 
 interface Payment {
@@ -33,117 +42,143 @@ interface Payment {
   status: string;
 }
 
-interface RentalResponse {
-  success: boolean;
-  statusCode?: number;
-  message: string;
-  data: RentalRequest[];
-}
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  description,
+}: {
+  title: string;
+  value: number;
+  icon: React.ElementType;
+  description: string;
+}) {
+  return (
+    <div className="rounded-xl border bg-card p-6 shadow-sm">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-muted-foreground">
+          {title}
+        </p>
 
-interface PaymentResponse {
-  success: boolean;
-  statusCode?: number;
-  message: string;
-  data: Payment[];
+        <div className="rounded-lg bg-primary/10 p-2 text-primary">
+          <Icon className="h-5 w-5" />
+        </div>
+      </div>
+
+      <h2 className="mt-4 text-3xl font-bold">
+        {value}
+      </h2>
+
+      <p className="mt-1 text-xs text-muted-foreground">
+        {description}
+      </p>
+    </div>
+  );
 }
 
 export default async function TenantDashboard() {
-  const [rentalResult, paymentResult] =
-    await Promise.all([
-      getMyRentalRequestsAction("page=1&limit=100"),
-      getMyPaymentsAction(),
-    ]);
+  const [rentalResult, paymentResult] = await Promise.all([
+    getMyRentalRequestsAction("page=1&limit=100"),
+    getMyPaymentsAction(),
+  ]);
 
-  const rentals: RentalRequest[] =
-    (rentalResult as RentalResponse).data || [];
+  const rentals: RentalRequest[] = rentalResult.success
+    ? (rentalResult.data ?? [])
+    : [];
 
-  const payments: Payment[] =
-    (paymentResult as PaymentResponse).data || [];
+  const payments: Payment[] = paymentResult.success
+    ? (paymentResult.data ?? [])
+    : [];
 
   const pendingCount = rentals.filter(
-    (item: RentalRequest) => item.status === "PENDING"
+    (item) => item.status === "PENDING",
   ).length;
 
   const approvedCount = rentals.filter(
-    (item: RentalRequest) => item.status === "APPROVED"
+    (item) => item.status === "APPROVED",
   ).length;
 
   const activeCount = rentals.filter(
-    (item: RentalRequest) => item.status === "ACTIVE"
+    (item) => item.status === "ACTIVE",
   ).length;
 
   const completedPayments = payments.filter(
-    (item: Payment) => item.status === "COMPLETED"
+    (item) => item.status === "COMPLETED",
   ).length;
 
   const activeRentals = rentals
-    .filter(
-      (item: RentalRequest) =>
-        item.status === "ACTIVE"
-    )
+    .filter((item) => item.status === "ACTIVE")
     .slice(0, 3);
 
   return (
     <div className="space-y-8">
+      {/* Dashboard Header */}
       <div>
         <h1 className="text-3xl font-bold">
           Tenant Dashboard
         </h1>
 
-        <p className="mt-2 text-gray-500">
+        <p className="mt-2 text-muted-foreground">
           Manage your rental requests and payments.
         </p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <p className="text-sm text-gray-500">
-            Pending Requests
-          </p>
-
-          <h2 className="mt-2 text-3xl font-bold">
-            {pendingCount}
-          </h2>
+      {/* API Error Messages */}
+      {!rentalResult.success && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          Failed to load rental requests: {rentalResult.message}
         </div>
+      )}
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <p className="text-sm text-gray-500">
-            Approved Requests
-          </p>
-
-          <h2 className="mt-2 text-3xl font-bold">
-            {approvedCount}
-          </h2>
+      {!paymentResult.success && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          Failed to load payments: {paymentResult.message}
         </div>
+      )}
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <p className="text-sm text-gray-500">
-            Active Rentals
-          </p>
+      {/* Statistics */}
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          title="Pending Requests"
+          value={pendingCount}
+          icon={ClipboardList}
+          description="Waiting for landlord approval"
+        />
 
-          <h2 className="mt-2 text-3xl font-bold">
-            {activeCount}
-          </h2>
-        </div>
+        <StatCard
+          title="Approved Requests"
+          value={approvedCount}
+          icon={CheckCircle}
+          description="Approved by landlords"
+        />
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <p className="text-sm text-gray-500">
-            Completed Payments
-          </p>
+        <StatCard
+          title="Active Rentals"
+          value={activeCount}
+          icon={Home}
+          description="Currently active rentals"
+        />
 
-          <h2 className="mt-2 text-3xl font-bold">
-            {completedPayments}
-          </h2>
-        </div>
+        <StatCard
+          title="Completed Payments"
+          value={completedPayments}
+          icon={CreditCard}
+          description="Successfully completed payments"
+        />
       </div>
 
+      {/* Quick Actions */}
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <ClipboardList className="h-6 w-6" />
+          </div>
+
           <h2 className="text-xl font-bold">
             My Rental Requests
           </h2>
 
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             View and track all your rental requests.
           </p>
 
@@ -153,38 +188,45 @@ export default async function TenantDashboard() {
           >
             <Button className="w-full">
               View Rental Requests
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </div>
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <CreditCard className="h-6 w-6" />
+          </div>
+
           <h2 className="text-xl font-bold">
             My Payments
           </h2>
 
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             View your payment history and transactions.
           </p>
 
           <Link
-            href="/payment"
+            href="/tenant-dashboard/payments"
             className="mt-5 block"
           >
-            <Button className="w-full">
+            <Button variant="outline" className="w-full">
               View Payments
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between">
+      {/* Active Rentals */}
+      <div className="rounded-xl border bg-card p-6 shadow-sm">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h2 className="text-xl font-bold">
               Active Rentals
             </h2>
 
-            <p className="mt-1 text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Your currently active rental properties.
             </p>
           </div>
@@ -192,46 +234,69 @@ export default async function TenantDashboard() {
           <Link href="/tenant-dashboard/rental-requests">
             <Button variant="outline">
               View All
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </div>
 
         <div className="mt-6 space-y-4">
-          {activeRentals.map(
-            (rental: RentalRequest) => (
-              <div
-                key={rental.id}
-                className="rounded-lg border p-4"
-              >
-                <h3 className="font-semibold">
-                  {rental.property?.title}
-                </h3>
+          {activeRentals.map((rental) => (
+            <div
+              key={rental.id}
+              className="rounded-lg border p-4"
+            >
+              <div className="flex flex-col justify-between gap-3 sm:flex-row">
+                <div>
+                  <h3 className="font-semibold">
+                    {rental.property?.title || "Property"}
+                  </h3>
 
-                <p className="text-sm text-gray-500">
-                  {rental.property?.location}
-                </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {rental.property?.location || "Location unavailable"}
+                  </p>
+                </div>
 
-                <p className="mt-1 text-sm">
+                <span className="h-fit w-fit rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300">
+                  {rental.status}
+                </span>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                <p className="text-muted-foreground">
                   Duration:{" "}
-                  <span className="font-semibold">
+                  <span className="font-semibold text-foreground">
                     {rental.months} months
                   </span>
                 </p>
 
-                <p className="text-sm">
-                  Status:{" "}
-                  <span className="font-semibold text-green-600">
-                    {rental.status}
+                <p className="text-muted-foreground">
+                  Move-in:{" "}
+                  <span className="font-semibold text-foreground">
+                    {new Date(rental.moveInDate).toLocaleDateString("en-BD")}
                   </span>
                 </p>
               </div>
-            )
-          )}
+            </div>
+          ))}
 
-          {activeCount === 0 && (
-            <p className="py-6 text-center text-gray-500">
-              You do not have any active rental yet.
-            </p>
+          {rentalResult.success && activeCount === 0 && (
+            <div className="py-8 text-center">
+              <Home className="mx-auto h-10 w-10 text-muted-foreground" />
+
+              <p className="mt-3 font-medium">
+                No Active Rentals
+              </p>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                You do not have any active rental yet.
+              </p>
+
+              <Link href="/property" className="mt-4 inline-block">
+                <Button variant="outline">
+                  Explore Properties
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>

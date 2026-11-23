@@ -18,7 +18,7 @@ export const getMe = async () => {
 
   try {
     const res = await fetch(
-      `${process.env.BACKEND_API_URL}/api/users/me`,
+      `${process.env.BACKEND_API_URL}/api/auth/me`,
       {
         headers: {
           Cookie: `accessToken=${accessToken}`,

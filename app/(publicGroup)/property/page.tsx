@@ -1,47 +1,99 @@
-import { getCategories, getProperties, PropertyListResponse } from "@/app/lib/api";
-import Pagination from "@/components/properties/pagination";
-import PropertyGrid from "@/components/properties/propertyGrid";
-import SearchFilter from "@/components/properties/searchFilter";
 
+import {
+  getCategories,
+  getProperties,
+  type PropertyParams,
+} from "@/app/lib/api";
+
+import SearchFilter from "@/components/properties/searchFilter";
+import PropertyGrid from "@/components/properties/propertyGrid";
+import Pagination from "@/components/properties/pagination";
+
+interface PropertiesPageProps {
+  searchParams: Promise<{
+    location?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    categoryId?: string;
+    searchTerm?: string;
+    bedrooms?: string;
+    isAvailable?: string;
+    page?: string;
+    limit?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }>;
+}
 
 export default async function PropertiesPage({
-    searchParams,
-}: {
-    searchParams: Promise<{
-        location?: string;
-        minPrice?: string;
-        maxPrice?: string;
-        categoryId?: string;
-        searchTerm?: string;
-    }>;
-}) {
-    const params = await searchParams;
+  searchParams,
+}: PropertiesPageProps) {
+  const params = await searchParams;
 
-    const propertyData : PropertyListResponse = await getProperties(params);
+  const apiParams: PropertyParams = {
+    location: params.location,
+    minPrice: params.minPrice,
+    maxPrice: params.maxPrice,
+    categoryId: params.categoryId,
+    searchTerm: params.searchTerm,
+    bedrooms: params.bedrooms,
+    isAvailable: params.isAvailable,
+    page: params.page || "1",
+    limit: params.limit || "9",
+    sortBy: params.sortBy,
+    sortOrder: params.sortOrder,
+  };
 
-    const categoryData = await getCategories();
+  const [propertyData, categoryData] = await Promise.all([
+    getProperties(apiParams),
+    getCategories(),
+  ]);
 
-    return (
-        <main>
+  const properties = propertyData.data ?? [];
+  const categories = categoryData.data ?? [];
 
-            <h1 className="mb-8 text-4xl font-bold">
-                All Properties
-            </h1>
+  const currentPage = propertyData.meta?.page ?? 1;
+  const totalPage = propertyData.meta?.totalPage ?? 1;
 
+  return (
+    <main className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mb-8">
+        <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-emerald-600">
+          Explore RentNest
+        </p>
 
-            <SearchFilter
-                categories={categoryData.data}
-            />
+        <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          Find Your Perfect Property
+        </h1>
 
-            <PropertyGrid
-                properties={propertyData.data}
-            />
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Explore available rental properties and find a place
+          that feels like home.
+        </p>
+      </div>
 
-            <Pagination
-                page={propertyData.meta?.page as number}
-                totalPage={propertyData.meta?.totalPage as number}
-            />
+      <SearchFilter categories={categories} />
 
-        </main>
-    );
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold text-foreground">
+          Available Properties
+        </h2>
+
+        <p className="text-sm text-muted-foreground">
+          {propertyData.meta?.total ?? properties.length} properties found
+        </p>
+      </div>
+
+      <PropertyGrid properties={properties} />
+
+      {properties.length > 0 && totalPage > 1 && (
+        <div className="mt-10">
+          <Pagination
+            page={currentPage}
+            totalPage={totalPage}
+          />
+        </div>
+      )}
+    </main>
+  );
 }

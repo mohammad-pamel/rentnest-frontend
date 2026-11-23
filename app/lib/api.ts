@@ -1,9 +1,9 @@
 
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-interface PropertyParams {
+export interface PropertyParams {
   searchTerm?: string;
   location?: string;
   minPrice?: string;
@@ -83,7 +83,7 @@ export interface PropertyResponse {
   success: boolean;
   statusCode: number;
   message: string;
-  data: Property;
+  data: Property | null;
 }
 
 export interface CreatePropertyInput {
@@ -253,18 +253,26 @@ export async function getProperties(
 export async function getProperty(
   id: string
 ): Promise<PropertyResponse> {
-  const res = await fetch(
-    `${API_URL}/api/properties/${id}`,
-    {
-      cache: "no-store",
-    }
-  );
+  const res = await fetch(`${API_URL}/api/properties/${id}`, {
+    cache: "no-store",
+  });
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch property");
+  const result = (await res.json()) as PropertyResponse;
+
+  if (res.status === 404) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: result.message || "Property not found",
+      data: null as unknown as Property,
+    };
   }
 
-  return (await res.json()) as PropertyResponse;
+  if (!res.ok || !result.success) {
+    throw new Error(result.message || "Failed to fetch property");
+  }
+
+  return result;
 }
 
 export async function createProperty(
@@ -415,61 +423,3 @@ export async function registerUser(
   return (await res.json()) as RegisterResponse;
 }
 
-export const getMyProfile =
-  async (): Promise<ProfileResponse | {
-    success: false;
-    message: string;
-    data: null;
-  }> => {
-    try {
-      const cookieStore = await cookies();
-
-      const accessToken =
-        cookieStore.get("accessToken")?.value;
-
-      if (!accessToken) {
-        return {
-          success: false,
-          message: "You are not logged in",
-          data: null,
-        };
-      }
-
-      const res = await fetch(
-        `${process.env.BACKEND_API_URL}/api/users/me`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          cache: "no-store",
-        }
-      );
-
-      const result =
-        (await res.json()) as ProfileResponse;
-
-      if (!res.ok || !result.success) {
-        return {
-          success: false,
-          message:
-            result.message ||
-            "Failed to fetch profile",
-          data: null,
-        };
-      }
-
-      return result;
-    } catch (error) {
-      console.error(
-        "Get profile error:",
-        error
-      );
-
-      return {
-        success: false,
-        message: "Failed to fetch profile",
-        data: null,
-      };
-    }
-  };

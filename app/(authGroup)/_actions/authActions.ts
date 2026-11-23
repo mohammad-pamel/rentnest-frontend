@@ -16,8 +16,6 @@ type LoginState = {
 
 
 export const loginAction = async (prevState: LoginState, formData: FormData) => {
-    console.log(formData);
-
     const email = formData.get("email");
     const password = formData.get("password");
 
@@ -42,14 +40,18 @@ export const loginAction = async (prevState: LoginState, formData: FormData) => 
         const cookieStore = await cookies()
 
         cookieStore.set("accessToken", result.data.accessToken , {
-            httpOnly : true,
-            maxAge : 60 * 60 * 24,
-            sameSite : "lax",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 24,
+            sameSite: "lax",
+            path: "/",
         });
         cookieStore.set("refreshToken", result.data.refreshToken , {
-            httpOnly : true,
-            maxAge : 60 * 60 * 24 * 7,
-            sameSite : "lax",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 24 * 7,
+            sameSite: "lax",
+            path: "/",
         });
 
        const decodedToken = jwt.decode(result.data.accessToken) as JwtPayload;
@@ -58,7 +60,7 @@ export const loginAction = async (prevState: LoginState, formData: FormData) => 
             redirect("/tenant-dashboard");
         } else if (decodedToken.role === "ADMIN"){
             redirect("/admin-dashboard");
-        } else if (decodedToken.role === "LANDLOARD"){
+        } else if (decodedToken.role === "LANDLORD"){
             redirect("/landloard-dashboard");
         }
     }

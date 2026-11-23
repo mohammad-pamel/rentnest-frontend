@@ -1,18 +1,53 @@
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
+
 import { updateRentalStatusAction } from "../_actions/rentalActions";
 
+type RentalStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "ACTIVE"
+  | "REJECTED"
+  | "CANCELLED"
+  | "COMPLETED";
+
+interface RentalProperty {
+  id: string;
+  title: string;
+  location: string;
+  price: number | string;
+}
+
+interface RentalTenant {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+}
+
+interface RentalRequest {
+  id: string;
+  moveInDate: string;
+  months: number;
+  status: RentalStatus;
+  message?: string | null;
+  property: RentalProperty;
+  tenant: RentalTenant;
+}
+
 type RentalRequestCardProps = {
-  request: any;
+  request: RentalRequest;
 };
 
-const RentalRequestCard = ({
+export default function RentalRequestCard({
   request,
-}: RentalRequestCardProps) => {
+}: RentalRequestCardProps) {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
@@ -20,6 +55,16 @@ const RentalRequestCard = ({
   const handleStatusUpdate = async (
     status: "APPROVED" | "REJECTED"
   ) => {
+    if (loading) return;
+
+    const confirmed = window.confirm(
+      status === "APPROVED"
+        ? "Are you sure you want to approve this rental request?"
+        : "Are you sure you want to reject this rental request?"
+    );
+
+    if (!confirmed) return;
+
     try {
       setLoading(true);
 
@@ -30,21 +75,21 @@ const RentalRequestCard = ({
 
       if (!result.success) {
         toast.error(
-          result.message || "Failed to update request"
+          result.message || "Failed to update rental request"
         );
-
         return;
       }
 
       toast.success(
-        status === "APPROVED"
-          ? "Rental request accepted successfully"
-          : "Rental request rejected successfully"
+        result.message ||
+          (status === "APPROVED"
+            ? "Rental request approved successfully"
+            : "Rental request rejected successfully")
       );
 
       router.refresh();
     } catch (error) {
-      console.error(error);
+      console.error("Rental status update error:", error);
 
       toast.error(
         "Something went wrong while updating request"
@@ -54,131 +99,170 @@ const RentalRequestCard = ({
     }
   };
 
+  const statusStyle: Record<RentalStatus, string> = {
+    PENDING:
+      "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
+    APPROVED:
+      "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+    ACTIVE:
+      "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+    REJECTED:
+      "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+    CANCELLED:
+      "bg-muted text-muted-foreground",
+    COMPLETED:
+      "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
+  };
+
   return (
-    <div className="rounded-xl border p-5 shadow-sm">
-      {/* Property */}
+    <div className="rounded-xl border bg-card p-5 shadow-sm">
+      {/* Property Information */}
       <div>
-        <h2 className="text-xl font-bold">
-          {request.property.title}
-        </h2>
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+          <div>
+            <h2 className="text-xl font-bold">
+              {request.property.title}
+            </h2>
 
-        <p className="text-gray-500">
-          {request.property.location}
-        </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {request.property.location}
+            </p>
 
-        <p className="mt-1 font-semibold">
-          ৳ {request.property.price}
-        </p>
+            <p className="mt-2 font-semibold">
+              ৳{" "}
+              {Number(request.property.price).toLocaleString("en-BD")}
+            </p>
+          </div>
+
+          <span
+            className={`w-fit rounded-full px-3 py-1 text-sm font-semibold ${statusStyle[request.status]}`}
+          >
+            {request.status}
+          </span>
+        </div>
       </div>
 
-      <div className="my-4 border-t" />
+      <div className="my-5 border-t" />
 
-      {/* Tenant */}
+      {/* Tenant Information */}
       <div>
         <h3 className="font-semibold">
           Tenant Information
         </h3>
 
-        <p>
-          Name: {request.tenant.name}
-        </p>
-
-        <p>
-          Email: {request.tenant.email}
-        </p>
-
-        <p>
-          Phone: {request.tenant.phone}
-        </p>
-      </div>
-
-      <div className="my-4 border-t" />
-
-      {/* Rental Information */}
-      <div className="grid gap-3 md:grid-cols-3">
-        <div>
-          <p className="text-sm text-gray-500">
-            Move In Date
+        <div className="mt-2 space-y-1 text-sm">
+          <p>
+            Name:{" "}
+            <span className="font-medium">
+              {request.tenant.name}
+            </span>
           </p>
 
-          <p className="font-semibold">
-            {new Date(
-              request.moveInDate
-            ).toLocaleDateString()}
+          <p>
+            Email:{" "}
+            <span className="font-medium">
+              {request.tenant.email}
+            </span>
+          </p>
+
+          <p>
+            Phone:{" "}
+            <span className="font-medium">
+              {request.tenant.phone || "Not provided"}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <div className="my-5 border-t" />
+
+      {/* Rental Information */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Move-in Date
+          </p>
+
+          <p className="mt-1 font-semibold">
+            {new Date(request.moveInDate).toLocaleDateString("en-BD")}
           </p>
         </div>
 
         <div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Duration
           </p>
 
-          <p className="font-semibold">
+          <p className="mt-1 font-semibold">
             {request.months} months
           </p>
         </div>
 
         <div>
-          <p className="text-sm text-gray-500">
-            Status
+          <p className="text-sm text-muted-foreground">
+            Request Status
           </p>
 
-          <p className="font-semibold">
+          <p className="mt-1 font-semibold">
             {request.status}
           </p>
         </div>
       </div>
 
-      {/* Message */}
-      <div className="mt-4">
-        <p className="text-sm text-gray-500">
+      {/* Tenant Message */}
+      <div className="mt-5">
+        <p className="text-sm text-muted-foreground">
           Tenant Message
         </p>
 
-        <p className="mt-1">
-          {request.message}
+        <p className="mt-1 whitespace-pre-wrap text-sm">
+          {request.message || "No message provided."}
         </p>
       </div>
 
       {/* Accept / Reject */}
       {request.status === "PENDING" && (
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Button
             disabled={loading}
-            onClick={() =>
-              handleStatusUpdate("APPROVED")
-            }
+            onClick={() => handleStatusUpdate("APPROVED")}
           >
-            {loading ? "Processing..." : "Accept"}
+            {loading ? "Processing..." : "Accept Request"}
           </Button>
 
           <Button
             variant="destructive"
             disabled={loading}
-            onClick={() =>
-              handleStatusUpdate("REJECTED")
-            }
+            onClick={() => handleStatusUpdate("REJECTED")}
           >
-            {loading ? "Processing..." : "Reject"}
+            {loading ? "Processing..." : "Reject Request"}
           </Button>
         </div>
       )}
 
-      {/* Approved */}
       {request.status === "APPROVED" && (
-        <div className="mt-6 rounded-lg bg-green-50 p-3 text-green-700">
+        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
           This rental request has been approved.
         </div>
       )}
 
-      {/* Rejected */}
       {request.status === "REJECTED" && (
-        <div className="mt-6 rounded-lg bg-red-50 p-3 text-red-700">
+        <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
           This rental request has been rejected.
+        </div>
+      )}
+
+      {request.status === "ACTIVE" && (
+        <div className="mt-6 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-300">
+          This rental is currently active.
+        </div>
+      )}
+
+      {request.status === "COMPLETED" && (
+        <div className="mt-6 rounded-lg border bg-muted p-3 text-sm text-muted-foreground">
+          This rental has been completed.
         </div>
       )}
     </div>
   );
-};
-
-export default RentalRequestCard;
+}

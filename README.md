@@ -201,7 +201,6 @@ The frontend communicates with the RentNest backend through REST APIs.
 
 ```text
 /api/auth
-/api/users
 /api/properties
 /api/categories
 /api/rentals
@@ -465,12 +464,11 @@ The backend API is deployed separately:
 
 ## 👨‍💻 Admin Test Account
 
-For evaluation purposes:
-
-```text
-Email: admin@gmail.com
-Password: 123456
-```
+Admin credentials are not published in this repository. Use a verified account
+created in the deployed database and share evaluation credentials privately
+through the assignment submission channel. The supplied backend archive does
+not include a seed script, so the credentials previously listed here could
+not be verified from source.
 
 ## 📱 Responsive Design
 
